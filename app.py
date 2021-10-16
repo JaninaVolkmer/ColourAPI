@@ -1,8 +1,8 @@
 import os
-
 from flask import Flask, render_template, request
 from markupsafe import escape
-from PIL import Image 
+from PIL import Image
+
 
 # 'static' from template will point to colours folder
 app = Flask(__name__)
@@ -37,32 +37,41 @@ def upload():
     return render_template('complete.html', image_name=filename)
     # image_name= display image of specific name
 
-
 @app.route('/get_colours', methods=['GET'])
 def get_colours():
-    print('hallo')
-    images = os.listdir(os.path.join(app.static_folder, 'images'))
+    images = os.listdir('./static/images') # path
+    print(images)
     return render_template('display_image.html', images=images)
-
-@app.route('/get_colour/<colour>')
-def get_colour(colour):
-    print('hallo')
-    print(colour)
-    images = os.listdir(os.path.join(app.static_folder, 'images'))
-    return render_template('display_image.html', images=images)
-
-@app.route('/user/<username>')
-def show_user_profile(username):
-    # show the user profile for that user
-    return f'User {escape(username)}'
 
 @app.route('/colour/<colour>')
 def show_colour(colour):
     # show the user profile for that user
-    with Image.open(os.path.join(app.static_folder, 'images') + '/' + '2E98D3.png') as im:
-        im.show()
+    with Image.open(os.path.join(app.static_folder, 'images') + '/' + '2E98D3.png') as image:
+        image.show()
     return f'User {escape(colour)}'
+
+@app.route('/colours/<colours>', methods=['GET'])
+def show_colours():
+    directory = os.path.join(app.static_folder, 'images')
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            print(os.path.join(directory, filename))
+        else:
+            continue
+
+@app.route('/get_hex')
+def get_hex():
+    allhex = []
+    for filename in os.listdir('static/images'):
+        if filename.endswith(".png"):
+            allhex.append(os.path.join('static/images', filename))
+        else:
+            continue
+    return render_template('allhex.html', allhex=allhex)
+
+@app.route('/picture')
+def picture():
+    return render_template('picture.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
-    

@@ -1,13 +1,14 @@
 import os
+from os.path import exists
 from flask import Flask, render_template, request
-from markupsafe import escape
-from PIL import Image
 
 
 # 'static' from template will point to colours folder
 app = Flask(__name__)
 
+
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 
 @app.route("/")
 def index():
@@ -17,7 +18,7 @@ def index():
 def upload():
     print('im a print statement')
     # join/add folder where uploads will go (colours)
-    target = os.path.join(APP_ROOT, 'static/images/')
+    target = os.path.join(APP_ROOT, 'static/images')
     print(target)
 
 # make sure folder exists
@@ -37,41 +38,31 @@ def upload():
     return render_template('complete.html', image_name=filename)
     # image_name= display image of specific name
 
-@app.route('/get_colours', methods=['GET'])
-def get_colours():
+
+# gettting list of colours
+@app.route('/listcolours', methods=['GET'])
+def listcolours():
     images = os.listdir('./static/images') # path
     print(images)
     return render_template('display_image.html', images=images)
 
+
+# display a single colour with Hex endpoint
 @app.route('/colour/<colour>')
 def show_colour(colour):
     # show the user profile for that user
-    with Image.open(os.path.join(app.static_folder, 'images') + '/' + '2E98D3.png') as image:
-        image.show()
-    return f'User {escape(colour)}'
-
-@app.route('/colours/<colours>', methods=['GET'])
-def show_colours():
-    directory = os.path.join(app.static_folder, 'images')
-    for filename in os.listdir(directory):
-        if filename.endswith(".png"):
-            print(os.path.join(directory, filename))
-        else:
-            continue
-
-@app.route('/get_hex')
-def get_hex():
     allhex = []
-    for filename in os.listdir('static/images'):
-        if filename.endswith(".png"):
-            allhex.append(os.path.join('static/images', filename))
-        else:
-            continue
+    filename = os.path.join(APP_ROOT, 'static/images') + '/' + colour + '.png'
+    single_file = '/static/images' + '/' + colour + '.png'
+    print(single_file)
+    allhex.append(single_file)
+    print(filename)
+    file_exists = exists(filename)
+    if not file_exists:
+        print('file does not exist' + filename)
+        return "Does not exist"
     return render_template('allhex.html', allhex=allhex)
 
-@app.route('/picture')
-def picture():
-    return render_template('picture.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
